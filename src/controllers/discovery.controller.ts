@@ -36,43 +36,45 @@ export const updateDiscoveryProgress = async (req: Request, res: Response): Prom
   }
 };
 
-export const sendResume= async (req: Request, res: Response): Promise<any> => {
-    try {
-        const { id, email, number } = req.body;
+export const sendResume = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const id = (req as any).id;
+    const email = (req as any).email;
+    const { number } = req.body;
 
-        const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({ where: { id } });
 
-        if (!number)
-            return res.status(400).json({ error: "Campos obrigatórios ausentes" });
+    if (!number)
+      return res.status(400).json({ error: "Campos obrigatórios ausentes" });
 
-        if (!user)
-            return res.status(404).json({ error: "Usuário não encontrado" });
+    if (!user)
+      return res.status(404).json({ error: "Usuário não encontrado" });
 
-        const fileUrl = `https://old.gubi.com.br/resume/${number}.pdf`;
+    const fileUrl = `https://old.gubi.com.br/resume/${number}.pdf`;
 
-        await sendEmail({
-            toEmail: email,
-            toName: user.name,
-            subject: "Seus resultados!",
-            htmlContent: `
-                <html>
-                <p>Olá! Parabéns por ter terminado os testes. Clique no botão abaixo para baixar seus resultados:</p>
-                <a href="${fileUrl}" download>
-                    <button style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px;">Baixar resultado</button>
-                </a>
-                </html>
-            `,
-        });
+    await sendEmail({
+      toEmail: email,
+      toName: user.name,
+      subject: "Seus resultados!",
+      htmlContent: `
+        <html>
+          <p>Olá! Parabéns por ter terminado os testes. Clique no botão abaixo para baixar seus resultados:</p>
+          <a href="${fileUrl}" download>
+            <button style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px;">Baixar resultado</button>
+          </a>
+        </html>
+      `,
+    });
 
-        await prisma.discoveryProgress.update({
-            where: { userId: id },
-            data: { resume: number },
-        });
+    await prisma.discoveryProgress.update({
+      where: { userId: id },
+      data: { resume: number },
+    });
 
-        return res.json({ type: "success", status: "Email enviado e resumo atualizado com sucesso." });
+    return res.json({ type: "success", status: "Email enviado e resumo atualizado com sucesso." });
 
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ type: "error", status: "Erro interno, tente novamente mais tarde." });
-    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ type: "error", status: "Erro interno, tente novamente mais tarde." });
+  }
 }
