@@ -7,5 +7,5 @@ services:
     environment:
       NODE_ENV: production
     volumes:
-      - .:/app
+      - ./src:/app/src
     restart: unless-stopped
