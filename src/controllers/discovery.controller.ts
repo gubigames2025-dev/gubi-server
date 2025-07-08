@@ -1,0 +1,78 @@
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
+import sendEmail from "../utils/sendEmail";
+
+const prisma = new PrismaClient();
+
+export const updateDiscoveryProgress = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id, completedLevels, answers } = req.body;
+
+    if (!id || !Array.isArray(completedLevels) || !Array.isArray(answers)) {
+      return res.status(400).json({ error: "Invalid payload" });
+    }
+
+    if (answers.length !== 26) {
+      return res.status(400).json({ error: "Must have exactly 26 answers" });
+    }
+
+    await prisma.discoveryProgress.upsert({
+      where: { userId: id },
+      create: {
+        userId: id,
+        completedLevels,
+        answers,
+      },
+      update: {
+        completedLevels,
+        answers,
+      },
+    });
+
+    return res.status(200).json({ message: "Updated successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const sendResume= async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { id, email, number } = req.body;
+
+        const user = await prisma.user.findUnique({ where: { id } });
+
+        if (!number)
+            return res.status(400).json({ error: "Campos obrigatórios ausentes" });
+
+        if (!user)
+            return res.status(404).json({ error: "Usuário não encontrado" });
+
+        const fileUrl = `https://old.gubi.com.br/resume/${number}.pdf`;
+
+        await sendEmail({
+            toEmail: email,
+            toName: user.name,
+            subject: "Seus resultados!",
+            htmlContent: `
+                <html>
+                <p>Olá! Parabéns por ter terminado os testes. Clique no botão abaixo para baixar seus resultados:</p>
+                <a href="${fileUrl}" download>
+                    <button style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px;">Baixar resultado</button>
+                </a>
+                </html>
+            `,
+        });
+
+        await prisma.discoveryProgress.update({
+            where: { userId: id },
+            data: { resume: number },
+        });
+
+        return res.json({ type: "success", status: "Email enviado e resumo atualizado com sucesso." });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ type: "error", status: "Erro interno, tente novamente mais tarde." });
+    }
+}
