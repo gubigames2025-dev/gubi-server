@@ -4,8 +4,8 @@ services:
     container_name: gubi-server
     ports:
       - "3000:3000"
-    environment:
-      NODE_ENV: production
+    env_file:
+      - .env
     volumes:
       - ./src:/app/src
     restart: unless-stopped
