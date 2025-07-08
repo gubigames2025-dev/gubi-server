@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 
 export const updateDiscoveryProgress = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id, completedLevels, answers } = req.body;
+    const id = (req as any).id;
+    const { completedLevels, answers } = req.body;
 
     if (!id || !Array.isArray(completedLevels) || !Array.isArray(answers)) {
       return res.status(400).json({ error: "Invalid payload" });
