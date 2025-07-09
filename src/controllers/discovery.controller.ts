@@ -53,15 +53,14 @@ export const sendResume = async (req: Request, res: Response): Promise<any> => {
       return res.status(404).json({ error: "Usuário não encontrado" });
 
     const fileUrl = `https://old.gubi.com.br/resume/${number}.pdf`;
-    const logoUrl = "../assets/images/gubi-logo.png";
 
-    const bodyHtml = resumeEmailBody(user.name, fileUrl, logoUrl);
-    const htmlContent = wrapEmail(bodyHtml);
+    const bodyHtml = resumeEmailBody(user.name, fileUrl);
+    const htmlContent = wrapEmail("Relatório", bodyHtml);
 
     await sendEmail({
       toEmail: email,
       toName: user.name,
-      subject: "Seu Relatório de Orientação Profissional",
+      subject: "Seu relatório está pronto!",
       htmlContent
     });
 

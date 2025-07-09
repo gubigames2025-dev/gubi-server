@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import generateToken from "../utils/generateToken";
 import sendEmail from "../utils/sendEmail";
+import { wrapEmail, registerEmailBody } from "../utils/emailTemplates";
 
 import { UserInterestsEnum, UserSkillsEnum } from "@prisma/client";
 import { TwoYearGoalsEnum } from "@prisma/client";
@@ -150,35 +151,14 @@ export const register = async (
       },
     });
 
+    const bodyHtml = registerEmailBody(user.name);
+    const htmlContent = wrapEmail("Relatório", bodyHtml);
+
     sendEmail({
       toEmail: user.email,
       toName: user.name,
-      subject: "Bem-vindo ao Gubi Jornada ProFuturo!",
-      htmlContent: `
-        <!DOCTYPE html>
-        <html lang="pt-br">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Bem-vindo ao Gubi Jornada ProFuturo!</title>
-            <style>
-              body { font-family: Arial, sans-serif; text-align: center; background-color: #fff; color: #1a1a1a; padding: 20px; margin: 0; }
-              h1 { color: #007acc; }
-              p { color: #333; margin-bottom: 15px; }
-              a { display: inline-block; padding: 10px 20px; background-color: #007acc; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-              a:link, a:visited, a:hover, a:active { color: #fff; }
-            </style>
-          </head>
-          <body>
-            <h1>Seja bem-vindo, <span>${user.name}</span>!</h1>
-            <p>Parabéns! Sua inscrição no <strong>Gubi Jornada ProFuturo</strong> foi concluída com sucesso.</p>
-            <p>Agora você tem acesso exclusivo ao <strong>Gubi Discovery</strong>, um jogo interativo que vai te ajudar a conhecer melhor seu perfil profissional e suas preferências de carreira.</p>
-            <p>Antes de começar, leia com atenção e responda com sinceridade — isso será essencial para traçar um resultado alinhado com quem você é.</p>
-            <a href="http://discovery.gubi.com.br/">JOGAR AGORA!</a>
-            <p>Nos vemos lá!</p>
-          </body>
-        </html>
-      `,
+      subject: "Bem-vindo ao Jornada ProFuturo!",
+      htmlContent
     });
 
     const token = generateToken(user.id, user.email);
