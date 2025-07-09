@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import generateToken from "../utils/generateToken";
 import sendEmail from "../utils/sendEmail";
 
@@ -200,12 +201,18 @@ export const login = async (
   next: NextFunction
 ): Promise<any> => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password)
       return res
         .status(400)
         .json({ error: "Preencha todos os campos!" });
+
+    email = email.toLowerCase().trim();
+    const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.toLowerCase())
+
+    if (!isValidEmail(email))
+      return res.status(400).json({ error: "Email inválido!" });
 
     const user = await prisma.user.findUnique({ where: { email }, include: { discoveryProgress: true } });
     if (!user) return res.status(400).json({ error: "Email e/ou senha incorretos!" });
@@ -231,3 +238,71 @@ export const login = async (
     next(err);
   }
 };
+
+export const sendRecoveryCode = async (req: Request, res: Response): Promise<any> => {
+  const { email } = req.body;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
+
+  const code = crypto.randomInt(100000, 999999).toString();
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 5);
+
+  await prisma.passwordReset.create({
+    data: { email, code, expiresAt },
+  });
+
+  await sendEmail({
+    toEmail: email,
+    toName: user.name,
+    subject: "Código de recuperação de senha",
+    htmlContent: `<p>Seu código de recuperação: <strong>${code}</strong></p>`,
+  });
+
+  return res.status(200).json({ message: "Código enviado para o email" });
+}
+
+export const verifyRecoveryCode = async (req: Request, res: Response): Promise<any> => {
+  const { email, code } = req.body;
+
+  const record = await prisma.passwordReset.findFirst({
+    where: {
+      email,
+      code,
+      used: false,
+      expiresAt: { gt: new Date() },
+    },
+  });
+
+  if (!record) return res.status(400).json({ error: "Código inválido ou expirado" });
+
+  return res.status(200).json({ message: "Código válido" });
+}
+
+export const resetPassword = async (req: Request, res: Response): Promise<any> => {
+  const { email, code, newPassword } = req.body;
+
+  const record = await prisma.passwordReset.findFirst({
+    where: {
+      email,
+      code,
+      used: false,
+      expiresAt: { gt: new Date() },
+    },
+  });
+
+  if (!record) return res.status(400).json({ error: "Código inválido ou expirado" });
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({
+    where: { email },
+    data: { password: hashedPassword },
+  });
+
+  await prisma.passwordReset.update({
+    where: { id: record.id },
+    data: { used: true },
+  });
+
+  return res.status(200).json({ message: "Senha redefinida com sucesso" });
+}

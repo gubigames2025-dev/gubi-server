@@ -214,6 +214,19 @@ model Completion {
   user              User      @relation(fields: [userId], references: [id])
 }
 
+model PasswordReset {
+  id        String   @id @default(uuid())
+
+  email     String
+  code      String
+
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+}
+
+
 model DiscoveryProgress {
   id               Int              @id @default(autoincrement())
   userId           Int              @unique
