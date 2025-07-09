@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import sendEmail from "../utils/sendEmail";
+import { wrapEmail, resumeEmailBody } from "../utils/emailTemplates";
 
 const prisma = new PrismaClient();
 
@@ -52,38 +53,16 @@ export const sendResume = async (req: Request, res: Response): Promise<any> => {
       return res.status(404).json({ error: "Usuário não encontrado" });
 
     const fileUrl = `https://old.gubi.com.br/resume/${number}.pdf`;
+    const logoUrl = "../assets/images/gubi-logo.png";
+
+    const bodyHtml = resumeEmailBody(user.name, fileUrl, logoUrl);
+    const htmlContent = wrapEmail(bodyHtml);
 
     await sendEmail({
       toEmail: email,
       toName: user.name,
-      subject: "Seus resultados!",
-      htmlContent: `
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-          <head>
-            <meta charset="UTF-8" />
-            <title>Resultados Disponíveis</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;">
-            <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-              <h2 style="color: oklch(0.565 0.258 289.042);">Parabéns!</h2>
-              <p style="font-size: 16px; line-height: 1.5;">
-                Você concluiu todos os testes. Agora você pode baixar seus resultados clicando no botão abaixo:
-              </p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${fileUrl}" download style="text-decoration: none;">
-                  <button style="background-color: oklch(0.565 0.258 289.042); color: white; padding: 12px 24px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer;">
-                    Baixar Resultado
-                  </button>
-                </a>
-              </div>
-              <p style="font-size: 14px; color: #666;">
-                Se você tiver qualquer problema com o download, entre em contato conosco.
-              </p>
-            </div>
-          </body>
-        </html>
-      `,
+      subject: "Seu Relatório de Orientação Profissional",
+      htmlContent
     });
 
     await prisma.discoveryProgress.update({
