@@ -123,3 +123,59 @@ export function resumeEmailBody(userName: string, fileUrl: string): string {
     </tbody>
     `;
 }
+
+export function passwordRecoveryEmailBody(userName: string, recoveryCode: string): string {
+  return `
+    <tbody>
+      <tr>
+        <td align="center">
+          <h2 style="color: #8f49cb; margin-bottom: 10px;">
+            🔑 Recuperação de senha
+          </h2>
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center">
+          <p style="font-size: 16px; line-height: 1.6; margin: 20px 0 10px 0; max-width: 400px;">
+      Olá, ${userName}! Recebemos um pedido para redefinir a senha da sua conta. 
+      
+    </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center">
+          <p style="font-size: 16px; line-height: 1.6; margin: 0 0 10px 0; max-width: 400px;">
+            Utilize o código abaixo para redefinir sua senha:
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center" style="padding: 15px 0 30px 0;">
+          <span style="
+            display: inline-block;
+            background-color: #8f49cb;
+            color: white;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-family: monospace;
+            border-radius: 6px;
+            letter-spacing: 2px;
+          ">
+            ${recoveryCode}
+          </span>
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center">
+          <p style="font-size: 12px; color: #666; max-width: 400px;">
+            Se você não solicitou essa ação, basta ignorar este e-mail.
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  `;
+}

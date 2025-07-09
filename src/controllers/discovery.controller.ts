@@ -11,30 +11,32 @@ export const updateDiscoveryProgress = async (req: Request, res: Response): Prom
     const { completedLevels, answers } = req.body;
 
     if (!id || !Array.isArray(completedLevels) || !Array.isArray(answers)) {
-      return res.status(400).json({ error: "Invalid payload" });
+      return res.status(400).json({ error: "Payload inválido!" });
     }
 
     if (answers.length !== 26) {
-      return res.status(400).json({ error: "Must have exactly 26 answers" });
+      return res.status(400).json({ error: "Devem ter exatamente 26 perguntas!" });
     }
 
-    await prisma.discoveryProgress.upsert({
+    const existing = await prisma.discoveryProgress.findUnique({
+      where: { userId: id }
+    });
+    if (!existing) {
+      return res.status(404).json({ error: "DiscoveryProgress não encontrado para este usuário" });
+    }
+
+    await prisma.discoveryProgress.update({
       where: { userId: id },
-      create: {
-        userId: id,
+      data: {
         completedLevels,
-        answers,
-      },
-      update: {
-        completedLevels,
-        answers,
-      },
+        answers
+      }
     });
 
-    return res.status(200).json({ message: "Updated successfully" });
+    return res.status(200).json({ message: "Atualizado com sucesso!" });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Erro interno do servidor" });
   }
 };
 

@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import generateToken from "../utils/generateToken";
 import sendEmail from "../utils/sendEmail";
-import { wrapEmail, registerEmailBody } from "../utils/emailTemplates";
+import { wrapEmail, registerEmailBody, passwordRecoveryEmailBody } from "../utils/emailTemplates";
 
 import { UserInterestsEnum, UserSkillsEnum } from "@prisma/client";
 import { TwoYearGoalsEnum } from "@prisma/client";
@@ -232,11 +232,14 @@ export const sendRecoveryCode = async (req: Request, res: Response): Promise<any
     data: { email, code, expiresAt },
   });
 
+  const bodyHtml = passwordRecoveryEmailBody(user.name, code);
+  const htmlContent = wrapEmail("Recuperação de senha", bodyHtml);
+
   await sendEmail({
     toEmail: email,
     toName: user.name,
     subject: "Código de recuperação de senha",
-    htmlContent: `<p>Seu código de recuperação: <strong>${code}</strong></p>`,
+    htmlContent
   });
 
   return res.status(200).json({ message: "Código enviado para o email" });
