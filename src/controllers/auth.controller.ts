@@ -175,7 +175,7 @@ export const register = async (
   }
 };
 
-export const login = async (
+export const loginDiscovery = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -214,6 +214,46 @@ export const login = async (
 
       token,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const checkEmailExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    let { email } = req.body;
+
+    if (!email)
+      return res
+        .status(400)
+        .json({ error: "Preencha o campo de email!" });
+
+    email = email.toLowerCase().trim();
+
+    const isValidEmail = (email: string): boolean =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
+    if (!isValidEmail(email))
+      return res.status(400).json({ error: "Email inválido!" });
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+
+    if (user) {
+      return res
+        .status(200)
+        .json({ exists: true, message: "Email já cadastrado no banco!" });
+    }
+
+    return res
+      .status(200)
+      .json({ exists: false, message: "Email disponível." });
   } catch (err) {
     next(err);
   }
