@@ -29,6 +29,7 @@ export const register = async (
       workEnvironment, companyType, userSkills, customSkill,
 
       grade, wantsFaculty, currentInstitution, institution,
+      courseName, startCourseDate, endCourseDate,
       studyFormat, needsFinancialSupport, wantsFinancialInfo,
 
       twoYearGoals, workWhileStudying, hasInternshipExperience,
@@ -98,6 +99,9 @@ export const register = async (
             wantsFaculty,
             currentInstitution,
             institution,
+            courseName,
+            startCourseDate,
+            endCourseDate,
             studyFormat,
             needsFinancialSupport,
             wantsFinancialInfo,

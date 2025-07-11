@@ -151,6 +151,9 @@ model Education {
   wantsFaculty            String
   currentInstitution      String?
   institution             String?
+  courseName              String?
+  startCourseDate         String?
+  endCourseDate           String?
   studyFormat             String
   needsFinancialSupport   String
   wantsFinancialInfo      String

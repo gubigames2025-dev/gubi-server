@@ -24,6 +24,9 @@ export interface RegisterRequest {
     wantsFaculty: string;
     currentInstitution: string;
     institution: string;
+    courseName: string;
+    startCourseDate: string;
+    endCourseDate: string;
     studyFormat: string;
     needsFinancialSupport: string;
     wantsFinancialInfo: string;
