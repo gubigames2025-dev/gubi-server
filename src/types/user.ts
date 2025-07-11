@@ -3,6 +3,7 @@ export interface RegisterRequest {
     fullName: string;
     email: string;
     password: string;
+    country: string;
     phone: string;
     birthDate: string;
     gender: string;

@@ -22,8 +22,8 @@ export const register = async (
 ): Promise<any> => {
   try {
     const {
-      fullName, email, password, phone, birthDate,
-      gender, customGender, location,
+      fullName, email, password, country, phone,
+      birthDate, gender, customGender, location,
 
       userInterests, customInterest, workPreference,
       workEnvironment, companyType, userSkills, customSkill,
@@ -43,7 +43,7 @@ export const register = async (
     } = req.body as RegisterRequest;
 
     if (
-      !fullName || !email || !password || !birthDate || !gender || !location ||
+      !fullName || !email || !password || !country || !birthDate || !gender || !location ||
       !userInterests?.length || !workPreference || !workEnvironment || !companyType || !userSkills?.length ||
       !grade || !wantsFaculty || !studyFormat || !needsFinancialSupport || !wantsFinancialInfo ||
       !twoYearGoals?.length || !workWhileStudying || !hasInternshipExperience ||
@@ -73,6 +73,7 @@ export const register = async (
 
         email,
         password: hashedPassword,
+        country,
         phoneNumber: phone,
 
         birthDate: new Date(birthDate),

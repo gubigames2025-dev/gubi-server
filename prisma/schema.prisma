@@ -107,6 +107,8 @@ model User {
 
   email               String               @unique
   password            String
+
+  country             String
   phoneNumber         String
 
   birthDate           DateTime
