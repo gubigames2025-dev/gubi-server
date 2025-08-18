@@ -1,8 +1,8 @@
-import express from 'express'
+import express from 'express';
 import cors from 'cors';
-
-import authRouter from "./routes/auth"
+import authRouter from "./routes/auth";
 import discoveryRouter from "./routes/discovery";
+import { setupSwagger } from './swagger';
 
 const app = express();
 
@@ -12,11 +12,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-
 app.use(express.json());
 
-app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/discovery', discoveryRouter)
+// Swagger docs em português disponível em ambos ambientes
+setupSwagger(app);
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/discovery', discoveryRouter);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
