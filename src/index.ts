@@ -20,5 +20,12 @@ setupSwagger(app);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/discovery', discoveryRouter);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+// Exporta o app para uso em serverless (Vercel)
+export default app;
+
+// Executa localmente apenas se chamado diretamente
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+}
