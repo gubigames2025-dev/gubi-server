@@ -115,6 +115,7 @@ model User {
   gender              String
   customGender        String?
   location            String
+  profileImageUrl     String?
 
   createdAt           DateTime             @default(now())
 

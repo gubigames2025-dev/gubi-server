@@ -4,6 +4,12 @@
     { "src": "api/index.ts", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/uploads/(.*)", "dest": "api/index.ts" },
     { "src": "/(.*)", "dest": "api/index.ts" }
-  ]
+  ],
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 30
+    }
+  }
 }

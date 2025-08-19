@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import authRouter from "./routes/auth";
 import discoveryRouter from "./routes/discovery";
+import profileRouter from "./routes/profile";
 import { setupSwagger } from './swagger';
 
 const app = express();
@@ -14,11 +16,15 @@ app.use(cors({
 
 app.use(express.json());
 
+// Servir arquivos estáticos (uploads)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Swagger docs em português disponível em ambos ambientes
 setupSwagger(app);
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/discovery', discoveryRouter);
+app.use('/api/v1/profile', profileRouter);
 
 
 // Exporta o app para uso em serverless (Vercel)
