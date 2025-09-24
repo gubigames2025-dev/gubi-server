@@ -4,6 +4,7 @@ import path from 'path';
 import authRouter from "./routes/auth";
 import discoveryRouter from "./routes/discovery";
 import profileRouter from "./routes/profile";
+import emailTestRouter from "./routes/email-test";
 import { setupSwagger } from './swagger';
 
 const app = express();
@@ -25,6 +26,7 @@ setupSwagger(app);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/discovery', discoveryRouter);
 app.use('/api/v1/profile', profileRouter);
+app.use('/api/v1/email-test', emailTestRouter);
 
 
 // Exporta o app para uso em serverless (Vercel)
