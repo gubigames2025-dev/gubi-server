@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 import { EmailFactory } from './src/utils/email/factory/email.factory';
 
-// Carregar variáveis de ambiente
-dotenv.config();
+// Carregar variáveis de ambiente (.env.local tem prioridade)
+dotenv.config({ path: ['.env.local', '.env'] });
 
 async function testEmailProviders() {
   console.log('🧪 Testando Provedores de Email\n');
