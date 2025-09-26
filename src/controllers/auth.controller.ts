@@ -77,7 +77,7 @@ export const register = async (
         country,
         phoneNumber: phone,
 
-        birthDate: new Date(birthDate),
+        birthDate: new Date(),
         gender,
         customGender,
         location,
