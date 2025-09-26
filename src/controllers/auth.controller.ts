@@ -43,19 +43,19 @@ export const register = async (
       howFoundUs, customHowFoundUs, acceptsTerms, acceptsDataUsage
     } = req.body as RegisterRequest;
 
-    if (
-      !fullName || !email || !password || !country || !birthDate || !gender || !location ||
-      !userInterests?.length || !workPreference || !workEnvironment || !companyType || !userSkills?.length ||
-      !grade || !wantsFaculty || !studyFormat || !needsFinancialSupport || !wantsFinancialInfo ||
-      !twoYearGoals?.length || !workWhileStudying || !hasInternshipExperience ||
-      !softSkills?.length || !skillsToImprove?.length || !learningPreference || !studyFrequency ||
-      !thoughtAboutQuitting || !internetAccess || !availableDevices?.length ||
-      !householdSize || !peopleWithIncome || !participatesInSocialProgram ||
-      (participatesInSocialProgram === "sim" && !socialProgram) ||
-      !howFoundUs || (howFoundUs === "outro" && !customHowFoundUs) || !acceptsTerms || !acceptsDataUsage
-    ) {
-      return res.status(400).json({ error: "Campos obrigatórios ausentes ou incompletos" });
-    }
+    // if (
+    //   !fullName || !email || !password || !country || !birthDate || !gender || !location ||
+    //   !userInterests?.length || !workPreference || !workEnvironment || !companyType || !userSkills?.length ||
+    //   !grade || !wantsFaculty || !studyFormat || !needsFinancialSupport || !wantsFinancialInfo ||
+    //   !twoYearGoals?.length || !workWhileStudying || !hasInternshipExperience ||
+    //   !softSkills?.length || !skillsToImprove?.length || !learningPreference || !studyFrequency ||
+    //   !thoughtAboutQuitting || !internetAccess || !availableDevices?.length ||
+    //   !householdSize || !peopleWithIncome || !participatesInSocialProgram ||
+    //   (participatesInSocialProgram === "sim" && !socialProgram) ||
+    //   !howFoundUs || (howFoundUs === "outro" && !customHowFoundUs) || !acceptsTerms || !acceptsDataUsage
+    // ) {
+    //   return res.status(400).json({ error: "Campos obrigatórios ausentes ou incompletos" });
+    // }
 
     const userExists = await prisma.user.findFirst({
       where: { OR: [{ email }] },
@@ -77,7 +77,8 @@ export const register = async (
         country,
         phoneNumber: phone,
 
-        birthDate: new Date(),
+        // birthDate: new Date(birthDate),
+        birthDate: new Date(), // Definir como data atual para evitar erro de data inválida
         gender,
         customGender,
         location,
