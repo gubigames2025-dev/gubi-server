@@ -21,6 +21,9 @@ export const register = async (
   next: NextFunction
 ): Promise<any> => {
   try {
+    console.log('=== REGISTER REQUEST ===');
+    console.log('Body received:', JSON.stringify(req.body, null, 2));
+    
     const {
       fullName, email, password, country, phone,
       birthDate, gender, customGender, location,
@@ -42,6 +45,23 @@ export const register = async (
 
       howFoundUs, customHowFoundUs, acceptsTerms, acceptsDataUsage
     } = req.body as RegisterRequest;
+
+    // Validação básica obrigatória
+    if (!fullName || !email || !password || !gender || !location || !acceptsTerms || !acceptsDataUsage) {
+      console.log('Missing required fields:', {
+        fullName: !!fullName,
+        email: !!email,
+        password: !!password,
+        gender: !!gender,
+        location: !!location,
+        acceptsTerms: !!acceptsTerms,
+        acceptsDataUsage: !!acceptsDataUsage
+      });
+      return res.status(400).json({ 
+        error: "Campos básicos obrigatórios ausentes",
+        required: ["fullName", "email", "password", "gender", "location", "acceptsTerms", "acceptsDataUsage"]
+      });
+    }
 
     // if (
     //   !fullName || !email || !password || !country || !birthDate || !gender || !location ||
@@ -67,83 +87,174 @@ export const register = async (
     const [name, ...lastNameParts] = fullName.split(" ");
     const lastName = lastNameParts.join(" ");
 
+    // Função para validar e filtrar enums
+    const validateEnums = (values: string[], validEnums: string[]): string[] => {
+      if (!values || !Array.isArray(values)) return [];
+      return values.filter(value => validEnums.includes(value));
+    };
+
+    // Valores padrão para campos obrigatórios
+    const defaults = {
+      country: country || 'Brasil',
+      phone: phone || '',
+      birthDate: birthDate ? new Date(birthDate) : new Date('2000-01-01'),
+      customGender: customGender || null,
+      
+      // Interests
+      userInterests: validateEnums(userInterests, [
+        'saude', 'tecnologia', 'negocios', 'engenharia', 'arte_design',
+        'comunicacao', 'meio_ambiente', 'educacao', 'empreendedorismo',
+        'financas', 'outro'
+      ]),
+      customInterest: customInterest || null,
+      workPreference: workPreference || 'equilibrio',
+      workEnvironment: workEnvironment || 'presencial',
+      companyType: companyType || 'privada',
+      userSkills: validateEnums(userSkills, [
+        'comunicacao', 'organizacao', 'criatividade', 'logica', 'lideranca',
+        'adaptabilidade', 'trabalho_equipe', 'idiomas', 'programacao',
+        'excel', 'ferramentas_digitais', 'resolucao_problemas', 'outra'
+      ]),
+      customSkill: customSkill || null,
+      
+      // Education
+      grade: grade || 'ensino_medio',
+      wantsFaculty: wantsFaculty || 'sim',
+      currentInstitution: currentInstitution || null,
+      institution: institution || null,
+      courseName: courseName || null,
+      startCourseDate: startCourseDate || null,
+      endCourseDate: endCourseDate || null,
+      studyFormat: studyFormat || 'presencial',
+      needsFinancialSupport: needsFinancialSupport || 'sim',
+      wantsFinancialInfo: wantsFinancialInfo || 'sim',
+      
+      // Employment
+      twoYearGoals: validateEnums(twoYearGoals, [
+        'conseguir_emprego', 'ingressar_faculdade', 'curso_tecnico',
+        'empreender', 'aprender_ferramenta_tecnica', 'melhorar_habilidades_sociais',
+        'fazer_intercambio', 'aprender_idioma', 'ainda_nao_sei'
+      ]),
+      workWhileStudying: workWhileStudying || 'talvez',
+      hasInternshipExperience: hasInternshipExperience || 'nao',
+      
+      // Skills
+      softSkills: validateEnums(softSkills, [
+        'comunicacao', 'criatividade', 'persistencia', 'organizacao',
+        'trabalho_equipe', 'empatia', 'lideranca', 'flexibilidade',
+        'resolucao_problemas', 'inteligencia_emocional'
+      ]),
+      skillsToImprove: validateEnums(skillsToImprove, [
+        'comunicacao', 'criatividade', 'persistencia', 'organizacao',
+        'trabalho_equipe', 'empatia', 'lideranca', 'flexibilidade',
+        'resolucao_problemas', 'inteligencia_emocional'
+      ]),
+      hardSkills: validateEnums(hardSkills, [
+        'excel', 'power_bi', 'canva', 'python', 'banco_dados',
+        'atendimento_cliente', 'criacao_conteudo', 'vendas',
+        'design_grafico', 'nenhuma'
+      ]),
+      learningPreference: learningPreference || 'visual',
+      studyFrequency: studyFrequency || 'diario',
+      
+      // Challenges
+      currentDifficulties: validateEnums(currentDifficulties, [
+        'organizacao', 'entendimento', 'ansiedade', 'carreira',
+        'estrutura_de_estudo', 'nenhuma'
+      ]),
+      thoughtAboutQuitting: thoughtAboutQuitting || 'nao',
+      internetAccess: internetAccess || 'sim',
+      availableDevices: validateEnums(availableDevices, [
+        'celular', 'computador', 'tablet', 'nenhum'
+      ]),
+      
+      // Socioeconomic
+      participatesInSocialProgram: participatesInSocialProgram || 'nao',
+      socialProgram: socialProgram || '',
+      householdSize: householdSize || '1-2',
+      peopleWithIncome: peopleWithIncome || '1',
+      
+      // Completion
+      howFoundUs: howFoundUs || 'internet',
+      customHowFoundUs: customHowFoundUs || null
+    };
+
+    console.log('Processed defaults:', defaults);
+
     const user = await prisma.user.create({
       data: {
         name,
         lastName,
-
         email,
         password: hashedPassword,
-        country,
-        phoneNumber: phone,
-
-        // birthDate: new Date(birthDate),
-        birthDate: new Date(), // Definir como data atual para evitar erro de data inválida
+        country: defaults.country,
+        phoneNumber: defaults.phone,
+        birthDate: defaults.birthDate,
         gender,
-        customGender,
+        customGender: defaults.customGender,
         location,
 
         interests: {
           create: {
-            userInterests: userInterests as UserInterestsEnum[],
-            customInterest,
-            workPreference,
-            workEnvironment,
-            companyType,
-            userSkills: userSkills as UserSkillsEnum[],
-            customSkill,
+            userInterests: defaults.userInterests as UserInterestsEnum[],
+            customInterest: defaults.customInterest,
+            workPreference: defaults.workPreference,
+            workEnvironment: defaults.workEnvironment,
+            companyType: defaults.companyType,
+            userSkills: defaults.userSkills as UserSkillsEnum[],
+            customSkill: defaults.customSkill,
           },
         },
         education: {
           create: {
-            grade,
-            wantsFaculty,
-            currentInstitution,
-            institution,
-            courseName,
-            startCourseDate,
-            endCourseDate,
-            studyFormat,
-            needsFinancialSupport,
-            wantsFinancialInfo,
+            grade: defaults.grade,
+            wantsFaculty: defaults.wantsFaculty,
+            currentInstitution: defaults.currentInstitution,
+            institution: defaults.institution,
+            courseName: defaults.courseName,
+            startCourseDate: defaults.startCourseDate,
+            endCourseDate: defaults.endCourseDate,
+            studyFormat: defaults.studyFormat,
+            needsFinancialSupport: defaults.needsFinancialSupport,
+            wantsFinancialInfo: defaults.wantsFinancialInfo,
           },
         },
         employment: {
           create: {
-            twoYearGoals: twoYearGoals as TwoYearGoalsEnum[],
-            workWhileStudying,
-            hasInternshipExperience,
+            twoYearGoals: defaults.twoYearGoals as TwoYearGoalsEnum[],
+            workWhileStudying: defaults.workWhileStudying,
+            hasInternshipExperience: defaults.hasInternshipExperience,
           },
         },
         skills: {
           create: {
-            softSkills: softSkills as SoftSkillsEnum[],
-            skillsToImprove: skillsToImprove as SoftSkillsEnum[],
-            hardSkills: hardSkills as HardSkillsEnum[],
-            learningPreference,
-            studyFrequency,
+            softSkills: defaults.softSkills as SoftSkillsEnum[],
+            skillsToImprove: defaults.skillsToImprove as SoftSkillsEnum[],
+            hardSkills: defaults.hardSkills as HardSkillsEnum[],
+            learningPreference: defaults.learningPreference,
+            studyFrequency: defaults.studyFrequency,
           },
         },
         challenges: {
           create: {
-            currentDifficulties: currentDifficulties as DifficultiesEnum[],
-            thoughtAboutQuitting,
-            internetAccess,
-            availableDevices: availableDevices as DevicesEnum[],
+            currentDifficulties: defaults.currentDifficulties as DifficultiesEnum[],
+            thoughtAboutQuitting: defaults.thoughtAboutQuitting,
+            internetAccess: defaults.internetAccess,
+            availableDevices: defaults.availableDevices as DevicesEnum[],
           },
         },
         socioeconomic: {
           create: {
-            participatesInSocialProgram,
-            socialProgram,
-            householdSize,
-            peopleWithIncome,
+            participatesInSocialProgram: defaults.participatesInSocialProgram,
+            socialProgram: defaults.socialProgram,
+            householdSize: defaults.householdSize,
+            peopleWithIncome: defaults.peopleWithIncome,
           },
         },
         completion: {
           create: {
-            howFoundUs,
-            customHowFoundUs,
+            howFoundUs: defaults.howFoundUs,
+            customHowFoundUs: defaults.customHowFoundUs || '',
             acceptsTerms,
             acceptsDataUsage,
           },
@@ -156,6 +267,8 @@ export const register = async (
         },
       },
     });
+
+    console.log('User created successfully:', user.id);
 
     const bodyHtml = registerEmailBody(user.name);
     const htmlContent = wrapEmail("Relatório", bodyHtml);
