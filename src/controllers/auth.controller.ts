@@ -102,16 +102,17 @@ export const register = async (
       
       // Interests
       userInterests: validateEnums(userInterests, [
-        'saude', 'tecnologia', 'negocios', 'engenharia', 'arte_design',
+        'saude', 'tecnologia', 'ciencias', 'negocios', 'engenharia', 'arte_design',
         'comunicacao', 'meio_ambiente', 'educacao', 'empreendedorismo',
-        'financas', 'outro'
+        'esportes', 'financas', 'outro'
       ]),
       customInterest: customInterest || null,
-      workPreference: workPreference || 'equilibrio',
+      workPreference: (['estabilidade-financeira', 'equipe', 'ajudar', 'empreender', 'crescer', 'equilibrio'].includes(workPreference)) ? workPreference.replace('-', '_') : 'equilibrio',
       workEnvironment: workEnvironment || 'presencial',
       companyType: companyType || 'privada',
       userSkills: validateEnums(userSkills, [
-        'comunicacao', 'organizacao', 'criatividade', 'logica', 'lideranca',
+        'pratica', 'teoria', 'comunicacao', 'criativa', 'digital',
+        'organizacao', 'criatividade', 'logica', 'lideranca',
         'adaptabilidade', 'trabalho_equipe', 'idiomas', 'programacao',
         'excel', 'ferramentas_digitais', 'resolucao_problemas', 'outra'
       ]),

@@ -11,6 +11,7 @@ datasource db {
 enum UserInterestsEnum {
   saude
   tecnologia
+  ciencias
   negocios
   engenharia
   arte_design
@@ -18,12 +19,17 @@ enum UserInterestsEnum {
   meio_ambiente
   educacao
   empreendedorismo
+  esportes
   financas
   outro
 }
 
 enum UserSkillsEnum {
+  pratica
+  teoria
   comunicacao
+  criativa
+  digital
   organizacao
   criatividade
   logica
@@ -36,6 +42,15 @@ enum UserSkillsEnum {
   ferramentas_digitais
   resolucao_problemas
   outra
+}
+
+enum WorkPreferenceEnum {
+  estabilidade_financeira
+  equipe
+  ajudar
+  empreender
+  crescer
+  equilibrio
 }
 
 enum TwoYearGoalsEnum {
