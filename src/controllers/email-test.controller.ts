@@ -88,7 +88,7 @@ export const testEmailSystem = async (req: Request, res: Response): Promise<any>
     if (testType === 'resume' || testType === 'all') {
       console.log('🧪 Testando email de entrega de relatório...');
       try {
-        const testFileUrl = 'https://old.gubi.com.br/resume/1.pdf';
+        const testFileUrl = 'https://ciee.gubi.com.br/relatorio/1.pdf';
         const bodyHtml = resumeEmailBody(name, testFileUrl);
         const htmlContent = wrapEmail("Relatório", bodyHtml);
         

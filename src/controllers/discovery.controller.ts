@@ -54,7 +54,7 @@ export const sendResume = async (req: Request, res: Response): Promise<any> => {
     if (!user)
       return res.status(404).json({ error: "Usuário não encontrado" });
 
-    const fileUrl = `https://old.gubi.com.br/resume/${number}.pdf`;
+    const fileUrl = `https://ciee.gubi.com.br/relatorio/${number}.pdf`;
 
     const bodyHtml = resumeEmailBody(user.name, fileUrl);
     const htmlContent = wrapEmail("Relatório", bodyHtml);
