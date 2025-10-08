@@ -2,16 +2,135 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                Int                @id @default(autoincrement())
+  name              String
+  lastName          String
+  email             String             @unique
+  password          String
+  phoneNumber       String
+  birthDate         DateTime
+  gender            String?
+  customGender      String?
+  location          String?
+  createdAt         DateTime           @default(now())
+  country           String
+  profileImageUrl   String?
+  challenges        Challenges?
+  completion        Completion?
+  discoveryProgress DiscoveryProgress?
+  education         Education?
+  employment        Employment?
+  interests         Interests?
+  skills            Skills?
+  socioeconomic     Socioeconomic?
+}
+
+model Interests {
+  id              Int                 @id @default(autoincrement())
+  userId          Int                 @unique
+  customInterest  String?
+  workPreference  String
+  workEnvironment String
+  customSkill     String?
+  companyType     String
+  userInterests   UserInterestsEnum[]
+  userSkills      UserSkillsEnum[]
+  user            User                @relation(fields: [userId], references: [id])
+}
+
+model Education {
+  id                    Int     @id @default(autoincrement())
+  userId                Int     @unique
+  grade                 String
+  wantsFaculty          String
+  currentInstitution    String?
+  institution           String?
+  studyFormat           String
+  needsFinancialSupport String
+  wantsFinancialInfo    String
+  courseName            String?
+  endCourseDate         String?
+  startCourseDate       String?
+  user                  User    @relation(fields: [userId], references: [id])
+}
+
+model Employment {
+  id                      Int                @id @default(autoincrement())
+  userId                  Int                @unique
+  twoYearGoals            TwoYearGoalsEnum[]
+  workWhileStudying       String
+  hasInternshipExperience String
+  user                    User               @relation(fields: [userId], references: [id])
+}
+
+model Skills {
+  id                 Int              @id @default(autoincrement())
+  userId             Int              @unique
+  learningPreference String
+  studyFrequency     String
+  softSkills         SoftSkillsEnum[]
+  skillsToImprove    SoftSkillsEnum[]
+  hardSkills         HardSkillsEnum[]
+  user               User             @relation(fields: [userId], references: [id])
+}
+
+model Challenges {
+  id                   Int                @id @default(autoincrement())
+  userId               Int                @unique
+  currentDifficulties  DifficultiesEnum[]
+  thoughtAboutQuitting String
+  internetAccess       String
+  availableDevices     DevicesEnum[]
+  user                 User               @relation(fields: [userId], references: [id])
+}
+
+model Socioeconomic {
+  id                          Int    @id @default(autoincrement())
+  userId                      Int    @unique
+  participatesInSocialProgram String
+  socialProgram               String
+  householdSize               String
+  peopleWithIncome            String
+  user                        User   @relation(fields: [userId], references: [id])
+}
+
+model Completion {
+  id               Int     @id @default(autoincrement())
+  userId           Int     @unique
+  howFoundUs       String
+  customHowFoundUs String
+  acceptsTerms     Boolean
+  acceptsDataUsage Boolean
+  user             User    @relation(fields: [userId], references: [id])
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model DiscoveryProgress {
+  id              Int              @id @default(autoincrement())
+  userId          Int              @unique
+  completedLevels DiscoveryLevel[]
+  answers         String[]
+  resume          String?
+  user            User             @relation(fields: [userId], references: [id])
+}
+
 enum UserInterestsEnum {
   saude
   tecnologia
-  ciencias
   negocios
   engenharia
   arte_design
@@ -19,17 +138,14 @@ enum UserInterestsEnum {
   meio_ambiente
   educacao
   empreendedorismo
-  esportes
   financas
   outro
+  ciencias
+  esportes
 }
 
 enum UserSkillsEnum {
-  pratica
-  teoria
   comunicacao
-  criativa
-  digital
   organizacao
   criatividade
   logica
@@ -42,15 +158,10 @@ enum UserSkillsEnum {
   ferramentas_digitais
   resolucao_problemas
   outra
-}
-
-enum WorkPreferenceEnum {
-  estabilidade_financeira
-  equipe
-  ajudar
-  empreender
-  crescer
-  equilibrio
+  pratica
+  teoria
+  criativa
+  digital
 }
 
 enum TwoYearGoalsEnum {
@@ -112,151 +223,4 @@ enum DiscoveryLevel {
   florest
   city
   cybercity
-}
-
-model User {
-  id                  Int                  @id @default(autoincrement())
-  
-  name                String
-  lastName            String
-
-  email               String               @unique
-  password            String
-
-  country             String
-  phoneNumber         String
-
-  birthDate           DateTime
-  gender              String
-  customGender        String?
-  location            String
-  profileImageUrl     String?
-
-  createdAt           DateTime             @default(now())
-
-  interests           Interests?
-  education           Education?
-  employment          Employment?
-  skills              Skills?
-  challenges          Challenges?
-  socioeconomic       Socioeconomic?
-  completion          Completion?
-  discoveryProgress   DiscoveryProgress?
-}
-
-model Interests {
-  id                  Int                  @id @default(autoincrement())
-  userId              Int                  @unique
-
-  userInterests       UserInterestsEnum[]
-  customInterest      String?
-  workPreference      String
-  workEnvironment     String
-  companyType         String
-  userSkills          UserSkillsEnum[]
-  customSkill         String?
-
-  user                User                 @relation(fields: [userId], references: [id])
-}
-
-model Education {
-  id                      Int      @id @default(autoincrement())
-  userId                  Int      @unique
-  
-  grade                   String
-  wantsFaculty            String
-  currentInstitution      String?
-  institution             String?
-  courseName              String?
-  startCourseDate         String?
-  endCourseDate           String?
-  studyFormat             String
-  needsFinancialSupport   String
-  wantsFinancialInfo      String
-
-  user                    User     @relation(fields: [userId], references: [id])
-}
-
-model Employment {
-  id                        Int                     @id @default(autoincrement())
-  userId                    Int                     @unique
-  
-  twoYearGoals              TwoYearGoalsEnum[]
-  workWhileStudying         String
-  hasInternshipExperience   String
-
-  user                      User                    @relation(fields: [userId], references: [id])
-}
-
-model Skills {
-  id                Int              @id @default(autoincrement())
-  userId            Int              @unique
-  
-  softSkills        SoftSkillsEnum[]
-  skillsToImprove   SoftSkillsEnum[]
-  hardSkills        HardSkillsEnum[]
-  learningPreference String
-  studyFrequency     String
-
-  user              User             @relation(fields: [userId], references: [id])
-}
-
-model Challenges {
-  id                    Int     @id @default(autoincrement())
-  userId                Int     @unique
-  
-  currentDifficulties   DifficultiesEnum[]
-  thoughtAboutQuitting  String
-  internetAccess        String
-  availableDevices      DevicesEnum[]
-
-  user                  User    @relation(fields: [userId], references: [id])
-}
-
-model Socioeconomic {
-  id                            Int     @id @default(autoincrement())
-  userId                        Int     @unique
-
-  participatesInSocialProgram  String
-  socialProgram                String
-  householdSize                String
-  peopleWithIncome             String
-
-  user                          User    @relation(fields: [userId], references: [id])
-}
-
-model Completion {
-  id                Int       @id @default(autoincrement())
-  userId            Int       @unique
-
-  howFoundUs        String
-  customHowFoundUs  String
-  acceptsTerms      Boolean
-  acceptsDataUsage  Boolean
-
-  user              User      @relation(fields: [userId], references: [id])
-}
-
-model PasswordReset {
-  id        String   @id @default(uuid())
-
-  email     String
-  code      String
-
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  
-  createdAt DateTime @default(now())
-}
-
-
-model DiscoveryProgress {
-  id               Int              @id @default(autoincrement())
-  userId           Int              @unique
-  
-  resume           String?
-  completedLevels  DiscoveryLevel[]
-  answers          String[]
-
-  user             User             @relation(fields: [userId], references: [id])
 }

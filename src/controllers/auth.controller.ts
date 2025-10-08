@@ -47,19 +47,17 @@ export const register = async (
     } = req.body as RegisterRequest;
 
     // Validação básica obrigatória
-    if (!fullName || !email || !password || !gender || !location || !acceptsTerms || !acceptsDataUsage) {
+    if (!fullName || !email || !password || !acceptsTerms || !acceptsDataUsage) {
       console.log('Missing required fields:', {
         fullName: !!fullName,
         email: !!email,
         password: !!password,
-        gender: !!gender,
-        location: !!location,
         acceptsTerms: !!acceptsTerms,
         acceptsDataUsage: !!acceptsDataUsage
       });
       return res.status(400).json({ 
         error: "Campos básicos obrigatórios ausentes",
-        required: ["fullName", "email", "password", "gender", "location", "acceptsTerms", "acceptsDataUsage"]
+        required: ["fullName", "email", "password", "acceptsTerms", "acceptsDataUsage"]
       });
     }
 
@@ -191,9 +189,9 @@ export const register = async (
         country: defaults.country,
         phoneNumber: defaults.phone,
         birthDate: defaults.birthDate,
-        gender,
+        gender: gender as any,
         customGender: defaults.customGender,
-        location,
+        location: location as any,
 
         interests: {
           create: {
